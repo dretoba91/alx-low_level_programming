@@ -1,135 +1,126 @@
-#include <stdlib.h>
 #include "main.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <ctype.h>
 
 /**
-  * int_calloc - calloc for ints
-  * @nmemb: n members
-  * @size: size array should be
-  * Return: int *
-  */
-int *int_calloc(int nmemb, unsigned int size)
+ * _is_zero - determines if any number is zero
+ * @argv: argument vector.
+ *
+ * Return: no return.
+ */
+void _is_zero(char *argv[])
 {
-	int *p, n;
-	/* malloc the memory, init to 0 */
-	if (nmemb == 0 || size == 0)
-		return (NULL);
-	p = malloc(nmemb * size);
-	if (p == NULL)
-		return (NULL);
-	for (n = 0; n < nmemb; n++)
-		p[n] = 0;
-	return (p);
-}
+	int i, isn1 = 1, isn2 = 1;
 
-/**
-  * mult - multiply the things
-  * @res: int * result is stored in
-  * @n1: string num1
-  * @n2: string num2
-  * @len1: length of num1
-  * @len2: length of num2
-  * Return: void
-  */
-void mult(int *res, char *n1, char *n2, int len1, int len2)
-{
-	/* Declarations */
-	int i, j, f1, f2, sum;
-
-	for (i = len1 - 1; i >= 0; i--)
-	{
-		sum = 0;
-		f1 = n1[i] - '0';
-		for (j = len2 - 1; j >= 0; j--)
+	for (i = 0; argv[1][i]; i++)
+		if (argv[1][i] != '0')
 		{
-			f2 = n2[j] - '0';
-			sum += res[i + j + 1] + (f1 * f2);
-			res[i + j + 1] = sum % 10;
-			sum /= 10;
+			isn1 = 0;
+			break;
 		}
-		if (sum > 0)
-			res[i + j + 1] += sum;
-	}
-	/* Take these magic numbers out */
-	for (i = 0; res[i] == 0 && i < len1 + len2; i++)
-	{}
-	if (i == len1 + len2)
-		_putchar('0');
-	for (; i < len1 + len2; i++)
-		_putchar(res[i] + '0');
-	_putchar('\n');
-}
 
-/**
-  * is_valid - is the number a valid one
-  * @num : char string num
-  * Return: int, 1 if true 0 if false
-  */
-int is_valid(char *num)
-{
-	int i;
-	/* input checking */
-	for (i = 0; num[i]; i++)
+	for (i = 0; argv[2][i]; i++)
+		if (argv[2][i] != '0')
+		{
+			isn2 = 0;
+			break;
+		}
+
+	if (isn1 == 1 || isn2 == 1)
 	{
-		if (num[i] < '0' || num[i] > '9')
-			return (0);
+		printf("0\n");
+		exit(0);
 	}
-	return (1);
 }
-/**
-  * err - error function
-  * @status: error code to exit with
-  * Return: void
-  */
-void err(int status)
-{
-	/* Print "Error" and exit 98 */
-	_putchar('E');
-	_putchar('r');
-	_putchar('r');
-	_putchar('o');
-	_putchar('r');
-	_putchar('\n');
-	exit(status);
-}
-/**
-  * main - Entry Point
-  * @argc: argument count
-  * @argv: argument string array
-  * Return: 0
-  */
-int main(int argc, char **argv)
-{
-	int i, j, len1 = 0, len2 = 0;
-	int *res;
 
-	/* if there aren't two numbers as arguments */
+/**
+ * _initialize_array - set memery to zero in a new array
+ * @ar: char array.
+ * @lar: length of the char array.
+ *
+ * Return: pointer of a char array.
+ */
+char *_initialize_array(char *ar, int lar)
+{
+	int i = 0;
+
+	for (i = 0; i < lar; i++)
+		ar[i] = '0';
+	ar[lar] = '\0';
+	return (ar);
+}
+
+/**
+ * _checknum - determines length of the number
+ * and checks if number is in base 10.
+ * @argv: arguments vector.
+ * @n: row of the array.
+ *
+ * Return: length of the number.
+ */
+int _checknum(char *argv[], int n)
+{
+	int ln;
+
+	for (ln = 0; argv[n][ln]; ln++)
+		if (!isdigit(argv[n][ln]))
+		{
+			printf("Error\n");
+			exit(98);
+		}
+
+	return (ln);
+}
+
+/**
+ * main - Entry point.
+ * program that multiplies two positive numbers.
+ * @argc: number of arguments.
+ * @argv: arguments vector.
+ *
+ * Return: 0 - success.
+ */
+int main(int argc, char *argv[])
+{
+	int ln1, ln2, lnout, add, addl, i, j, k, ca;
+	char *nout;
+
 	if (argc != 3)
+		printf("Error\n"), exit(98);
+	ln1 = _checknum(argv, 1), ln2 = _checknum(argv, 2);
+	_is_zero(argv), lnout = ln1 + ln2, nout = malloc(lnout + 1);
+	if (nout == NULL)
+		printf("Error\n"), exit(98);
+	nout = _initialize_array(nout, lnout);
+	k = lnout - 1, i = ln1 - 1, j = ln2 - 1, ca = addl = 0;
+	for (; k >= 0; k--, i--)
 	{
-		err(98);
-	}
-	for (i = 1; i < argc; i++)
-	{
-		/* if the two numbers are erroneous */
-		if (!(is_valid(argv[i])))
-			err(98);
-		/* find the length of each number */
-		if (i == 1)
+		if (i < 0)
 		{
-			for (j = 0; argv[i][j]; j++)
-				len1++;
+			if (addl > 0)
+			{
+				add = (nout[k] - '0') + addl;
+				if (add > 9)
+					nout[k - 1] = (add / 10) + '0';
+				nout[k] = (add % 10) + '0';
+			}
+			i = ln1 - 1, j--, addl = 0, ca++, k = lnout - (1 + ca);
 		}
-		if (i == 2)
+		if (j < 0)
 		{
-			for (j = 0; argv[i][j]; j++)
-				len2++;
+			if (nout[0] != '0')
+				break;
+			lnout--;
+			free(nout), nout = malloc(lnout + 1), nout = _initialize_array(nout, lnout);
+			k = lnout - 1, i = ln1 - 1, j = ln2 - 1, ca = addl = 0;
+		}
+		if (j >= 0)
+		{
+			add = ((argv[1][i] - '0') * (argv[2][j] - '0')) + (nout[k] - '0') + addl;
+			addl = add / 10, nout[k] = (add % 10) + '0';
 		}
 	}
-	res = int_calloc(len1 + len2, sizeof(int));
-	if (res == NULL)
-		err(98);
-	/* actual multiply call */
-	mult(res, argv[1], argv[2], len1, len2);
-	free(res);
-	/* final return */
+	printf("%s\n", nout);
 	return (0);
 }
